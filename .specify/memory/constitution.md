@@ -1,50 +1,66 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Notas API Specification Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Contract-First API Definition
+The API specification MUST be the authoritative description of externally observable
+API behavior. Proposed operations, schemas, and behavior changes MUST be reflected in
+the specification before or alongside implementation changes. Implementations and
+clients MUST NOT rely on behavior that the specification does not define.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Consistent and Explicit Contracts
+Every operation MUST define its purpose, inputs, outputs, and applicable errors.
+Required and optional fields, data types, constraints, and relevant authentication
+requirements MUST be explicit. New definitions MUST follow established naming and
+structural conventions; deviations MUST be explained in the change.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Backward-Compatible Evolution
+Changes MUST preserve compatibility for existing clients by default. A proposed
+breaking change MUST identify affected operations and consumers, explain its rationale,
+state its versioning impact, and provide a migration path before approval.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Validation and Quality Gates
+Every specification change MUST pass the repository's available syntax, schema, and
+reference validation before merge. Changed examples MUST conform to the definitions
+they illustrate. Validation failures MUST be fixed or explicitly reviewed and accepted
+as a documented exception before merge.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Usable API Documentation
+Each operation MUST include enough information for a consumer to understand and use it,
+including a clear description, parameters, request and response definitions, and
+applicable errors. Examples MUST be accurate and representative. Documentation MUST
+explain non-obvious constraints and behavior rather than relying on implementation
+knowledge.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## API Contract Requirements
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The specification MUST remain format- and technology-appropriate to this project;
+this constitution does not prescribe a schema format, runtime, or implementation
+stack. Shared definitions MUST be reused when doing so preserves meaning and improves
+consistency. The specification MUST distinguish normative behavior from examples or
+informative guidance.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Changes to the API contract MUST include the corresponding specification updates and
+validation results. Reviews MUST check affected operations, shared definitions,
+examples, and compatibility implications. A change that cannot meet a principle MUST
+document the specific reason and affected scope in its review; exceptions require
+maintainer approval.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs API specification work and takes precedence over conflicting
+local conventions. Amendments MUST be proposed with their rationale and impact,
+reviewed and approved by project maintainers, and recorded by updating this document.
+Changes to the API contract MUST be reviewed for compliance with these principles.
+Feature plans and pull request reviews MUST identify applicable validation and
+compatibility checks; deviations MUST be documented and approved before merge.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+The constitution uses semantic versioning. Increase the MAJOR version for backward-
+incompatible governance changes, including removing or redefining a principle.
+Increase the MINOR version when adding a principle or materially expanding governance.
+Increase the PATCH version for clarifications and other non-semantic edits. Update the
+amendment date whenever the constitution changes.
+
+**Version**: 1.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01

@@ -1,0 +1,328 @@
+openapi: 3.1.1
+info:
+  title: Notas API
+  version: 1.0.0
+  description: >
+    Contrato inicial para gerenciamento de notas privadas por usuários autenticados.
+servers:
+  - url: https://api.notas.invalid/v1
+    description: URL reservada e ilustrativa; o ambiente real será definido na implantação.
+security:
+  - bearerAuth: []
+paths:
+  /notes:
+    get:
+      operationId: listNotes
+      summary: Listar notas do usuário autenticado
+      description: >
+        Retorna somente notas pertencentes à identidade autenticada. Os resultados
+        são ordenados por data de criação crescente e, em caso de empate, por
+        identificador crescente antes da aplicação de limit e offset.
+      parameters:
+        - name: limit
+          in: query
+          description: Número máximo de notas nesta página.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Número de notas próprias a ignorar antes de iniciar a página.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Página de notas pertencentes ao usuário.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotePage'
+              example:
+                data:
+                  - id: note_01JABC
+                    title: Ideias para o projeto
+                    content: Rever os requisitos da primeira versão.
+                    createdAt: '2026-10-01T12:00:00Z'
+                    updatedAt: '2026-10-01T12:00:00Z'
+                total: 1
+                limit: 50
+                offset: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      operationId: createNote
+      summary: Criar uma nota
+      description: Cria uma nota associada exclusivamente à identidade autenticada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteInput'
+            example:
+              title: Ideias para o projeto
+              content: Rever os requisitos da primeira versão.
+      responses:
+        '201':
+          description: Nota criada.
+          headers:
+            Location:
+              description: Caminho para consultar a nota criada.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+              example:
+                id: note_01JABC
+                title: Ideias para o projeto
+                content: Rever os requisitos da primeira versão.
+                createdAt: '2026-10-01T12:00:00Z'
+                updatedAt: '2026-10-01T12:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /notes/{noteId}:
+    parameters:
+      - name: noteId
+        in: path
+        required: true
+        description: Identificador opaco da nota.
+        schema:
+          type: string
+          minLength: 1
+    get:
+      operationId: getNote
+      summary: Consultar uma nota própria
+      description: >
+        Retorna uma nota pertencente à identidade autenticada. Notas inexistentes,
+        excluídas ou pertencentes a outra identidade são tratadas como indisponíveis.
+      responses:
+        '200':
+          description: Nota consultada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      operationId: replaceNote
+      summary: Atualizar título e conteúdo de uma nota própria
+      description: >
+        Substitui título e conteúdo como uma única operação. Ambos os valores devem
+        ser válidos antes de qualquer alteração.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteInput'
+            example:
+              title: Ideias revisadas
+              content: Atualizar os requisitos e validar os exemplos.
+      responses:
+        '200':
+          description: Nota atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      operationId: deleteNote
+      summary: Excluir uma nota própria
+      description: >
+        Remove a nota das consultas normais. Notas inexistentes, excluídas ou
+        pertencentes a outra identidade são tratadas como indisponíveis.
+      responses:
+        '204':
+          description: Nota excluída; não há corpo na resposta.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Credencial de acesso emitida por um mecanismo de autenticação externo ao
+        escopo deste contrato.
+  schemas:
+    NoteInput:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          minLength: 1
+          pattern: '.*\S.*'
+          description: Título obrigatório, não vazio nem composto apenas por espaços.
+        content:
+          type: string
+          minLength: 1
+          pattern: '.*\S.*'
+          description: Conteúdo obrigatório, não vazio nem composto apenas por espaços.
+    Note:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - content
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: Identificador opaco da nota.
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          description: Instante de criação em formato RFC 3339.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Instante da última atualização em formato RFC 3339.
+    NotePage:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - total
+        - limit
+        - offset
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+        total:
+          type: integer
+          minimum: 0
+          description: Quantidade total de notas pertencentes ao usuário autenticado.
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        offset:
+          type: integer
+          minimum: 0
+    Problem:
+      type: object
+      description: Detalhe de erro no formato Problem Details.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        errors:
+          type: array
+          description: Erros de validação associados a campos da solicitação.
+          items:
+            type: object
+            required:
+              - pointer
+              - detail
+            properties:
+              pointer:
+                type: string
+                description: JSON Pointer para o campo inválido.
+              detail:
+                type: string
+  responses:
+    BadRequest:
+      description: Solicitação inválida ou dados não aceitos.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Solicitação inválida
+            status: 400
+            errors:
+              - pointer: '#/title'
+                detail: O título não pode estar vazio.
+    Unauthorized:
+      description: Credencial ausente ou inválida.
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Não autenticado
+            status: 401
+    NotFound:
+      description: Nota indisponível para esta identidade.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Nota não encontrada
+            status: 404
+    InternalError:
+      description: Erro inesperado; nenhum dado privado deve ser incluído na resposta.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Erro interno
+            status: 500
