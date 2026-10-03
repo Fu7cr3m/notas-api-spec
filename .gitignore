@@ -9,3 +9,17 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.swp
+
+# Node.js
+node_modules/
+dist/
+coverage/
+*.log
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local Supabase state
+.supabase/
