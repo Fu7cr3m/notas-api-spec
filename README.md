@@ -41,6 +41,21 @@ recria o banco e apaga os dados locais; não o execute se quiser preservar os da
 O roteiro de aceitação no quickstart demonstra a criação de duas identidades
 temporárias locais para conferir o isolamento entre usuários.
 
+## Interface web
+
+A interface React + Vite fica em [`web/`](./web/) e usa a API acima e o Supabase Auth
+locais, sem alterar o contrato. Com a API e o Supabase em execução:
+
+```powershell
+cd web
+npm install
+Copy-Item .env.example .env   # preencha VITE_SUPABASE_ANON_KEY com a chave pública
+npm run dev                    # http://127.0.0.1:5173
+```
+
+Veja [`web/README.md`](./web/README.md) e
+[`specs/003-notes-web-interface/quickstart.md`](./specs/003-notes-web-interface/quickstart.md).
+
 ## Validar
 
 ```powershell
